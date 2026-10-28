@@ -52,6 +52,16 @@ class ResaleOverview extends StatsOverviewWidget
                 ->description('بانتظار الاستئناف')
                 ->color('info')
                 ->icon('heroicon-o-pause-circle'),
+
+            Stat::make('ما بعد الصفقة: متأخرة', $metrics['aftercare_overdue'])
+                ->description('علاقات تجاوزت موعدها')
+                ->color($metrics['aftercare_overdue'] > 0 ? 'danger' : 'gray')
+                ->icon('heroicon-o-heart'),
+
+            Stat::make('ما بعد الصفقة: اليوم', $metrics['aftercare_due_today'])
+                ->description('حتى نهاية اليوم')
+                ->color('warning')
+                ->icon('heroicon-o-heart'),
         ];
     }
 }

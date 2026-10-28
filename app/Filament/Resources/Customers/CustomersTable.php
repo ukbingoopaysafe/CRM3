@@ -5,9 +5,11 @@ namespace App\Filament\Resources\Customers;
 use App\Filament\Concerns\ReportsDomainErrors;
 use App\Models\Base\Customer;
 use App\Models\User;
+use App\Services\AftercareService;
 use App\Services\CustomerService;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
+use Filament\Notifications\Notification;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -104,6 +106,22 @@ final class CustomersTable
                     ->action(function (Customer $record) use ($self): void {
                         $self->run(fn () => app(CustomerService::class)->restore($record, $self->actor()));
                     }),
+
+                Action::make('startAftercare')
+                    ->label('بدء ما بعد الصفقة')
+                    ->icon('heroicon-o-heart')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->modalHeading('بدء سجل ما بعد الصفقة')
+                    ->modalDescription('سجل واحد لكل عميل داخل القسم، ويُسند إليك. يبدأ فقط بعد صفقة ناجحة للعميل.')
+                    ->visible(fn (Customer $record): bool => ! $record->aftercare()->exists()
+                        && ($self->actor()?->can('startAftercare', $record) ?? false))
+                    ->action(function (Customer $record) use ($self): void {
+                        $self->run(
+                            fn () => app(AftercareService::class)->ensureFor($record, $self->actor()),
+                            'تم بدء سجل ما بعد الصفقة',
+                        );
+                    }),
             ])
             ->defaultSort('created_at', 'desc')
             ->striped()
@@ -121,12 +139,18 @@ final class CustomersTable
         return auth()->user();
     }
 
-    private function run(\Closure $callback): void
+    private function run(\Closure $callback, ?string $successMessage = null): void
     {
         try {
             $callback();
         } catch (ValidationException $exception) {
             $this->reportDomainError($exception);
+
+            return;
+        }
+
+        if ($successMessage !== null) {
+            Notification::make()->success()->title($successMessage)->send();
         }
     }
 }

@@ -6,6 +6,7 @@ use App\Enums\ContactParty;
 use App\Enums\Department;
 use App\Enums\RequestStatus;
 use App\Enums\Stage;
+use App\Filament\Resources\Requests\Concerns\HasDealAction;
 use App\Filament\Resources\Requests\Concerns\HasRequestLifecycleActions;
 use App\Models\Base\Request;
 use Filament\Actions\EditAction;
@@ -21,6 +22,7 @@ use Illuminate\Database\Eloquent\Builder;
  */
 final class RequestsTable
 {
+    use HasDealAction;
     use HasRequestLifecycleActions;
 
     public static function configure(Table $table, Department $department): Table
@@ -128,6 +130,7 @@ final class RequestsTable
             ->recordActions([
                 ViewAction::make()->label('عرض'),
                 EditAction::make()->label('تعديل'),
+                $self->dealAction(),
                 $self->stageAction(),
                 $self->pauseAction(),
                 $self->resumeAction(),

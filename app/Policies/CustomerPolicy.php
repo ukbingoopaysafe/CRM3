@@ -45,6 +45,15 @@ class CustomerPolicy
         return $user->isManager() && $this->inDepartment($user, $customer);
     }
 
+    /**
+     * Starting a relationship from the customer record is the employee's path
+     * for a deal that already happened without one (D-059).
+     */
+    public function startAftercare(User $user, Customer $customer): bool
+    {
+        return $user->isEmployee() && $this->inDepartment($user, $customer);
+    }
+
     public function delete(User $user, Customer $customer): bool
     {
         return false;
