@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Resale\Requests\Pages;
 
 use App\Filament\Resources\Requests\Concerns\HasDealAction;
+use App\Filament\Resources\Requests\Concerns\HasReassignmentActions;
 use App\Filament\Resources\Requests\Concerns\HasRequestLifecycleActions;
 use App\Filament\Resources\Resale\Requests\RequestResource;
 use Filament\Actions\Action;
@@ -12,6 +13,7 @@ use Filament\Resources\Pages\ViewRecord;
 class ViewRequest extends ViewRecord
 {
     use HasDealAction;
+    use HasReassignmentActions;
     use HasRequestLifecycleActions;
 
     protected static string $resource = RequestResource::class;
@@ -32,6 +34,8 @@ class ViewRequest extends ViewRecord
                 $this->lifecycleActions(),
             ),
             $this->dealAction()->record($record),
+            $this->requestReassignmentAction()->record($record),
+            $this->directReassignmentAction()->record($record),
             $this->activityAction()->record($record),
         ];
     }

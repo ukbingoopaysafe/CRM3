@@ -12,6 +12,7 @@ use App\Policies\AuditEventPolicy;
 use App\Policies\BrokerPolicy;
 use App\Policies\CustomerPolicy;
 use App\Policies\DealPolicy;
+use App\Policies\ReassignmentPolicy;
 use App\Policies\RequestPolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -39,6 +40,7 @@ class AppServiceProvider extends ServiceProvider
             Gate::policy($namespace.'\Request', RequestPolicy::class);
             Gate::policy($namespace.'\Deal', DealPolicy::class);
             Gate::policy($namespace.'\Aftercare', AftercarePolicy::class);
+            Gate::policy($namespace.'\Reassignment', ReassignmentPolicy::class);
         }
 
         Gate::policy(Area::class, AreaPolicy::class);

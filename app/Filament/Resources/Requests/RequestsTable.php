@@ -7,8 +7,10 @@ use App\Enums\Department;
 use App\Enums\RequestStatus;
 use App\Enums\Stage;
 use App\Filament\Resources\Requests\Concerns\HasDealAction;
+use App\Filament\Resources\Requests\Concerns\HasReassignmentActions;
 use App\Filament\Resources\Requests\Concerns\HasRequestLifecycleActions;
 use App\Models\Base\Request;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
@@ -23,6 +25,7 @@ use Illuminate\Database\Eloquent\Builder;
 final class RequestsTable
 {
     use HasDealAction;
+    use HasReassignmentActions;
     use HasRequestLifecycleActions;
 
     public static function configure(Table $table, Department $department): Table
@@ -131,10 +134,16 @@ final class RequestsTable
                 ViewAction::make()->label('عرض'),
                 EditAction::make()->label('تعديل'),
                 $self->dealAction(),
-                $self->stageAction(),
-                $self->pauseAction(),
-                $self->resumeAction(),
-                $self->closeAction(),
+                // The remaining moves are rare enough to live behind one menu,
+                // so the row stays readable with ten possible actions.
+                ActionGroup::make([
+                    $self->stageAction(),
+                    $self->pauseAction(),
+                    $self->resumeAction(),
+                    $self->closeAction(),
+                    $self->requestReassignmentAction(),
+                    $self->directReassignmentAction(),
+                ])->icon('heroicon-m-ellipsis-horizontal')->tooltip('خيارات أخرى'),
             ])
             ->defaultSort('id', 'desc')
             ->striped()
