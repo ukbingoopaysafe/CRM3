@@ -6,6 +6,7 @@ use App\Models\Area;
 use App\Models\AuditEvent;
 use App\Models\Rental;
 use App\Models\Resale;
+use App\Models\User;
 use App\Policies\AftercarePolicy;
 use App\Policies\AreaPolicy;
 use App\Policies\AuditEventPolicy;
@@ -14,6 +15,7 @@ use App\Policies\CustomerPolicy;
 use App\Policies\DealPolicy;
 use App\Policies\ReassignmentPolicy;
 use App\Policies\RequestPolicy;
+use App\Policies\UserPolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -45,5 +47,6 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::policy(Area::class, AreaPolicy::class);
         Gate::policy(AuditEvent::class, AuditEventPolicy::class);
+        Gate::policy(User::class, UserPolicy::class);
     }
 }

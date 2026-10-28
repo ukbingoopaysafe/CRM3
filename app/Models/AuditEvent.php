@@ -72,6 +72,10 @@ class AuditEvent extends Model
             'reassigned' => 'إعادة تعيين',
             'activity_logged' => 'تسجيل تواصل',
             'deal_created' => 'إنشاء صفقة',
+            'user_created' => 'إنشاء حساب',
+            'user_updated' => 'تعديل حساب',
+            'user_activated' => 'تفعيل حساب',
+            'user_deactivated' => 'تعطيل حساب',
             default => $this->event_type,
         };
     }

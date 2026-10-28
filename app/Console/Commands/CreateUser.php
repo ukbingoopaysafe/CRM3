@@ -5,14 +5,15 @@ namespace App\Console\Commands;
 use App\Enums\Department;
 use App\Enums\Role;
 use App\Models\User;
+use App\Services\UserAccountService;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 /**
- * Creates a staff account before the team screen exists (D-080, D-034).
+ * Creates a staff account before anyone can sign in to the panel (D-080).
  * An employee must belong to at least one department; a manager always covers
- * both, so a department option is meaningless for that role (D-063).
+ * both, so a department option is meaningless for that role (D-063). The
+ * write itself goes through UserAccountService, exactly as the team screen.
  */
 class CreateUser extends Command
 {
@@ -29,7 +30,7 @@ class CreateUser extends Command
 
     public function handle(): int
     {
-        $email = trim((string) $this->argument('email'));
+        $email = Str::lower(trim((string) $this->argument('email')));
 
         if (filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
             $this->error('البريد الإلكتروني غير صالح.');
@@ -68,21 +69,15 @@ class CreateUser extends Command
         $password = (string) ($this->option('password') ?: Str::password(16, symbols: false));
         $generated = blank($this->option('password'));
 
-        DB::transaction(function () use ($email, $role, $departments, $password): void {
-            $user = User::query()->create([
-                'name' => (string) ($this->option('name') ?: Str::before($email, '@')),
-                'email' => $email,
-                'password' => $password,
-                'role' => $role,
-                'job_title' => $this->option('job-title'),
-                'phone' => $this->option('phone'),
-                'is_active' => true,
-            ]);
-
-            foreach ($role === Role::Employee ? $departments : [] as $department) {
-                $user->memberships()->create(['department' => $department]);
-            }
-        });
+        app(UserAccountService::class)->create([
+            'name' => (string) ($this->option('name') ?: Str::before($email, '@')),
+            'email' => $email,
+            'password' => $password,
+            'role' => $role,
+            'departments' => $departments,
+            'job_title' => $this->option('job-title'),
+            'phone' => $this->option('phone'),
+        ]);
 
         $this->info("تم إنشاء الحساب: {$email} ({$role->getLabel()})");
 
