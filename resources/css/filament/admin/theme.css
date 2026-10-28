@@ -18,12 +18,40 @@
 
 /* ------------------------------------------------------------------ fonts */
 
+/*
+ * Cairo carries Arabic, Jost carries Latin and every numeral. The unicode-range
+ * on the Cairo faces is what keeps the two apart: Cairo ships Latin glyphs too,
+ * so without it every name and date would lose Jost. The range below is the
+ * Arabic blocks plus the shaping controls, and nothing else.
+ */
 @font-face {
-    font-family: 'beIN Normal';
-    src: url('/fonts/beIN-Normal.ttf') format('truetype');
-    font-weight: 100 900;
+    font-family: 'Cairo';
+    src: url('/fonts/cairo/Cairo-Regular.ttf') format('truetype');
+    font-weight: 400;
     font-style: normal;
     font-display: swap;
+    unicode-range: U+0600-06FF, U+0750-077F, U+0870-08FF, U+FB50-FDFF,
+        U+FE70-FEFF, U+200C-200F, U+1EE00-1EEFF;
+}
+
+@font-face {
+    font-family: 'Cairo';
+    src: url('/fonts/cairo/Cairo-SemiBold.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+    unicode-range: U+0600-06FF, U+0750-077F, U+0870-08FF, U+FB50-FDFF,
+        U+FE70-FEFF, U+200C-200F, U+1EE00-1EEFF;
+}
+
+@font-face {
+    font-family: 'Cairo';
+    src: url('/fonts/cairo/Cairo-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+    unicode-range: U+0600-06FF, U+0750-077F, U+0870-08FF, U+FB50-FDFF,
+        U+FE70-FEFF, U+200C-200F, U+1EE00-1EEFF;
 }
 
 @font-face {
@@ -35,8 +63,8 @@
 }
 
 @theme {
-    --font-sans: 'beIN Normal', 'Jost', ui-sans-serif, system-ui, sans-serif;
-    --font-display: 'Jost', 'beIN Normal', ui-sans-serif, sans-serif;
+    --font-sans: 'Cairo', 'Jost', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Jost', 'Cairo', ui-sans-serif, sans-serif;
 
     --radius-card: 12px;
     --radius-control: 8px;
@@ -97,8 +125,8 @@
 
     --cb-ease: 200ms cubic-bezier(0.2, 0, 0.2, 1);
 
-    --cible-font-ar: 'beIN Normal', 'Segoe UI', Tahoma, sans-serif;
-    --cible-font-latin: 'Jost', 'beIN Normal', 'Segoe UI', Tahoma, sans-serif;
+    --cible-font-ar: 'Cairo', 'Jost', 'Segoe UI', Tahoma, sans-serif;
+    --cible-font-latin: 'Jost', 'Cairo', 'Segoe UI', Tahoma, sans-serif;
 }
 
 /* ------------------------------------------------------------------- base */
