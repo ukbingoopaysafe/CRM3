@@ -32,7 +32,7 @@ final class AftercaresTable
 
                 TextColumn::make('next_follow_up_at')
                     ->label('المتابعة القادمة')
-                    ->dateTime('Y-m-d H:i')
+                    ->dateTime('j F Y')
                     ->placeholder('بلا موعد')
                     ->color(fn (Aftercare $record): string => $record->next_follow_up_at?->isPast() ? 'danger' : 'gray')
                     ->sortable(),

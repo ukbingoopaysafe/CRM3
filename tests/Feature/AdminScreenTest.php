@@ -4,8 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\Department;
 use App\Enums\Governorate;
-use App\Filament\Widgets\RentalOverview;
-use App\Filament\Widgets\ResaleOverview;
+use App\Filament\Pages\Dashboard;
 use App\Models\DepartmentMembership;
 use App\Models\User;
 use App\Services\CustomerService;
@@ -116,17 +115,17 @@ class AdminScreenTest extends TestCase
         $rental = $this->employee(Department::Rental);
         $manager = $this->manager();
 
-        $this->actingAs($rental);
-        $this->assertTrue(RentalOverview::canView());
-        $this->assertFalse(ResaleOverview::canView());
+        $this->actingAs($rental)
+            ->get('/admin')
+            ->assertOk()
+            ->assertSee('cb-board-rental', false)
+            ->assertDontSee('cb-board-resale', false);
 
-        Livewire::test(RentalOverview::class)
-            ->assertSuccessful()
-            ->assertSee('مؤشرات الإيجار');
-
-        $this->actingAs($manager);
-        $this->assertTrue(RentalOverview::canView());
-        $this->assertTrue(ResaleOverview::canView());
+        $this->actingAs($manager)
+            ->get('/admin')
+            ->assertOk()
+            ->assertSee('cb-board-rental', false)
+            ->assertSee('cb-board-resale', false);
     }
 
     public function test_dashboard_counts_only_its_own_department_requests(): void
@@ -137,9 +136,10 @@ class AdminScreenTest extends TestCase
 
         $this->actingAs($rental->owner);
 
-        Livewire::test(RentalOverview::class)
+        Livewire::test(Dashboard::class)
             ->assertSuccessful()
-            ->assertSee('طلبات نشطة');
+            ->assertSee('طلبات نشطة')
+            ->assertSee('متابعات متأخرة');
 
         $this->assertSame(1, app(SummaryMetrics::class)->for(Department::Rental)['active']);
         $this->assertSame(2, app(SummaryMetrics::class)->for(Department::Resale)['active']);

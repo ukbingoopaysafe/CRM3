@@ -69,7 +69,10 @@ final class RequestsTable
 
                 TextColumn::make('next_follow_up_at')
                     ->label('المتابعة القادمة')
-                    ->dateTime('Y-m-d H:i')
+                    // A raw "Y-m-d H:i" string is two numeric runs, and RTL
+                    // renders it as "14:19 2026-11-06". An Arabic date reads in
+                    // one direction and needs no bidi fixing.
+                    ->dateTime('j F Y')
                     ->placeholder('—')
                     ->color(fn (Request $record): string => $record->isActive()
                         && $record->next_follow_up_at?->isPast() ? 'danger' : 'gray')
