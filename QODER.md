@@ -1,0 +1,2 @@
+# Agent Instructions
+Always read and strictly follow the rules defined in `.qoder/rules.md` for every task. Apply all installed skills (ui-ux-pro-max, impeccable, caveman, ponytail, karpathy, matt-pocock, superpowers, humanizer, graphify) automatically.
