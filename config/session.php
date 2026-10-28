@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\SessionSecurity;
 use Illuminate\Support\Str;
 
 return [
@@ -47,7 +48,7 @@ return [
     |
     */
 
-    'encrypt' => env('SESSION_ENCRYPT', false),
+    'encrypt' => env('SESSION_ENCRYPT', true),
 
     /*
     |--------------------------------------------------------------------------
@@ -169,7 +170,9 @@ return [
     |
     */
 
-    'secure' => env('SESSION_SECURE_COOKIE'),
+    // Config loads before the container knows its environment, so the flag is
+    // resolved from the environment variable itself (D-074).
+    'secure' => SessionSecurity::cookieIsSecure(env('APP_ENV', 'production') === 'production'),
 
     /*
     |--------------------------------------------------------------------------
