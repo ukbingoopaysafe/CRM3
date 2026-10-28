@@ -154,6 +154,28 @@ class UserAccountService
     }
 
     /**
+     * Turning MFA off is a manager's decision, not the account holder's, so a
+     * lost phone cannot lock the company out of its own panel (D-079, D-080).
+     */
+    public function disableMfa(User $user, ?User $actor = null): User
+    {
+        $this->assertManager($actor);
+
+        if (! $user->hasMultiFactorAuthentication()) {
+            return $user;
+        }
+
+        $user->saveAppAuthenticationSecret(null);
+        $user->saveAppAuthenticationRecoveryCodes(null);
+
+        $this->audit->record('user_mfa_disabled', $user, null, [
+            'email' => $user->email,
+        ], actor: $actor);
+
+        return $user;
+    }
+
+    /**
      * @throws ValidationException
      */
     public function assertEmailAvailable(string $email, ?int $ignoreId = null): void

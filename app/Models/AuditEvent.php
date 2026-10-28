@@ -76,6 +76,7 @@ class AuditEvent extends Model
             'user_updated' => 'تعديل حساب',
             'user_activated' => 'تفعيل حساب',
             'user_deactivated' => 'تعطيل حساب',
+            'user_mfa_disabled' => 'تعطيل المصادقة الثنائية',
             default => $this->event_type,
         };
     }

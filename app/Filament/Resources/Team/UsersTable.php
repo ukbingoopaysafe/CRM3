@@ -63,6 +63,12 @@ final class UsersTable
                     ->formatStateUsing(fn (bool $state): string => $state ? 'نشط' : 'موقوف')
                     ->color(fn (bool $state): string => $state ? 'success' : 'danger'),
 
+                TextColumn::make('multi_factor')
+                    ->label('المصادقة الثنائية')
+                    ->badge()
+                    ->state(fn (User $record): string => $record->hasMultiFactorAuthentication() ? 'مفعّلة' : 'معطّلة')
+                    ->color(fn (string $state): string => $state === 'مفعّلة' ? 'success' : 'gray'),
+
                 TextColumn::make('last_login_at')
                     ->label('آخر دخول')
                     ->dateTime('Y-m-d H:i')
@@ -102,6 +108,19 @@ final class UsersTable
                 EditAction::make()
                     ->label('تعديل')
                     ->visible(fn (User $record): bool => auth()->user()?->can('update', $record) ?? false),
+
+                Action::make('disable_mfa')
+                    ->label('تعطيل المصادقة الثنائية')
+                    ->icon('heroicon-o-shield-exclamation')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->modalHeading('تعطيل المصادقة الثنائية')
+                    ->modalDescription('يدخل صاحب الحساب بعدها بكلمة المرور وحدها، وتُحذف رموز الاسترداد المحفوظة.')
+                    ->visible(fn (User $record): bool => $record->hasMultiFactorAuthentication()
+                        && (auth()->user()?->can('update', $record) ?? false))
+                    ->action(function (User $record) use ($self): void {
+                        $self->run(fn () => app(UserAccountService::class)->disableMfa($record, auth()->user()));
+                    }),
 
                 Action::make('deactivate')
                     ->label('تعطيل الحساب')

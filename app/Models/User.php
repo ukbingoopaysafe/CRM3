@@ -5,6 +5,10 @@ namespace App\Models;
 use App\Enums\Department;
 use App\Enums\Role;
 use Database\Factories\UserFactory;
+use Filament\Auth\MultiFactor\App\Concerns\InteractsWithAppAuthentication;
+use Filament\Auth\MultiFactor\App\Concerns\InteractsWithAppAuthenticationRecovery;
+use Filament\Auth\MultiFactor\App\Contracts\HasAppAuthentication;
+use Filament\Auth\MultiFactor\App\Contracts\HasAppAuthenticationRecovery;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasAvatar;
 use Filament\Panel;
@@ -19,10 +23,10 @@ use Illuminate\Support\Facades\Storage;
  * Internal staff account. A company manager always covers both departments;
  * an employee only sees the departments assigned to them (D-034, D-063).
  */
-class User extends Authenticatable implements FilamentUser, HasAvatar
+class User extends Authenticatable implements FilamentUser, HasAppAuthentication, HasAppAuthenticationRecovery, HasAvatar
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, InteractsWithAppAuthentication, InteractsWithAppAuthenticationRecovery, Notifiable;
 
     protected $fillable = [
         'name',
@@ -103,6 +107,14 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     public function isActive(): bool
     {
         return $this->is_active;
+    }
+
+    /**
+     * TOTP stays optional (D-079); the team screen shows whether it is on.
+     */
+    public function hasMultiFactorAuthentication(): bool
+    {
+        return filled($this->getAppAuthenticationSecret());
     }
 
     public function scopeEmployees(Builder $query): Builder
