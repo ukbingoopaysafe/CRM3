@@ -103,6 +103,17 @@ abstract class Request extends Model
         return $this->hasMany(static::related('Reassignment'), 'request_id')->latest('id');
     }
 
+    /**
+     * The pending transfer request, when one is waiting for a decision. A row
+     * action reads this per record, so the list eager loads it instead of
+     * asking the database once per row (D-085).
+     */
+    public function pendingReassignment(): HasOne
+    {
+        return $this->hasOne(static::related('Reassignment'), 'request_id')
+            ->where('status', 'pending');
+    }
+
     public function recommendations(): HasMany
     {
         return $this->hasMany(static::related('Recommendation'), 'request_id');

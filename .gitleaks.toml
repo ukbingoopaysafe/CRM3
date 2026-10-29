@@ -1,0 +1,19 @@
+# Secrets scan configuration. Values are always reported redacted.
+#
+# tests/ is allowlisted because its fixtures hold fixed placeholder passwords
+# ("temporary-pass-2026" and friends). A real secret belongs in .env, which is
+# untracked. Generated output and vendor code are not ours to scan.
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Test fixtures and generated output"
+paths = [
+  '''tests/.*\.php''',
+  '''vendor/.*''',
+  '''node_modules/.*''',
+  '''public/build/.*''',
+  '''storage/.*''',
+  '''\.env$''',
+  '''\.env\..*''',
+]

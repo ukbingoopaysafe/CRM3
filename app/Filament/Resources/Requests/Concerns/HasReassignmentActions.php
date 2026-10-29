@@ -73,8 +73,7 @@ trait HasReassignmentActions
 
     private function canBeReassigned(Request $record): bool
     {
-        return ! $record->isClosed()
-            && ! $record->reassignments()->where('status', 'pending')->exists();
+        return ! $record->isClosed() && $record->pendingReassignment === null;
     }
 
     /**

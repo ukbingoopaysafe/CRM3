@@ -33,7 +33,7 @@ final class RequestsTable
         $self = new self;
 
         return $table
-            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['customer', 'broker', 'owner', 'area']))
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['customer', 'broker', 'owner', 'area', 'deal', 'pendingReassignment']))
             ->columns([
                 TextColumn::make('id')
                     ->label('#')

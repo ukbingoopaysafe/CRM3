@@ -1,2 +1,2 @@
 # Agent Instructions
-Always read and strictly follow the rules defined in `.qoder/rules.md` for every task. Apply all installed skills (ui-ux-pro-max, impeccable, caveman, ponytail, karpathy, matt-pocock, superpowers, humanizer, graphify) automatically.
+Always read and strictly follow the rules defined in `.qoder/rules.md` for every task. Read `CONSTRAINTS.md` before writing code and do not weaken it to make a change pass; run `composer check:fast` after edits and `composer check:task` before handing work back. Apply all installed skills (ui-ux-pro-max, impeccable, caveman, ponytail, karpathy, matt-pocock, superpowers, humanizer, graphify) automatically.

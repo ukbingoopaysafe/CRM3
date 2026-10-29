@@ -184,4 +184,25 @@ class TeamScreenTest extends TestCase
 
         $this->assertSame(1, User::query()->where('email', $existing->email)->count());
     }
+
+    public function test_the_service_refuses_a_password_shorter_than_the_form_asks_for(): void
+    {
+        $manager = $this->manager();
+
+        try {
+            app(UserAccountService::class)->create([
+                'name' => 'حساب بكلمة قصيرة',
+                'email' => 'short@cible.test',
+                'role' => Role::Employee->value,
+                'departments' => [Department::Rental->value],
+                'password' => 'short-pass',
+            ], $manager);
+
+            $this->fail('A short password must be refused by the service, not only by the form.');
+        } catch (ValidationException $exception) {
+            $this->assertArrayHasKey('password', $exception->errors());
+        }
+
+        $this->assertDatabaseMissing('users', ['email' => 'short@cible.test']);
+    }
 }

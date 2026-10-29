@@ -24,7 +24,7 @@ trait HasDealAction
             ->color('success')
             ->visible(fn (Request $record): bool => $record->isClosed()
                 && $record->outcome === Outcome::Successful
-                && ! $record->deal()->exists())
+                && $record->deal === null)
             ->url(fn (Request $record): string => self::dealResourceFor($record)::getUrl('create', [
                 'request_id' => $record->getKey(),
             ]));

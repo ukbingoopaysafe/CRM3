@@ -17,6 +17,12 @@ use Illuminate\Validation\ValidationException;
  */
 class UserAccountService
 {
+    /**
+     * The form asks for 12 characters, but a console command or a future
+     * caller reaches this service directly, so the rule lives here too (D-086).
+     */
+    private const MIN_PASSWORD_LENGTH = 12;
+
     public function __construct(private readonly AuditLogger $audit) {}
 
     /**
@@ -40,6 +46,8 @@ class UserAccountService
             if (blank($data['password'] ?? null)) {
                 throw ValidationException::withMessages(['password' => 'كلمة المرور مطلوبة.']);
             }
+
+            $this->assertPassword((string) $data['password']);
 
             $user = User::query()->create([
                 'name' => trim((string) ($data['name'] ?? '')) ?: Str::before($email, '@'),
@@ -103,6 +111,7 @@ class UserAccountService
             ]);
 
             if (filled($data['password'] ?? null)) {
+                $this->assertPassword((string) $data['password']);
                 $user->password = (string) $data['password'];
             }
 
@@ -195,6 +204,18 @@ class UserAccountService
     private function normalizeEmail(string $email): string
     {
         return Str::lower(trim($email));
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    private function assertPassword(string $password): void
+    {
+        if (mb_strlen($password) < self::MIN_PASSWORD_LENGTH) {
+            throw ValidationException::withMessages([
+                'password' => 'كلمة المرور يجب أن تكون '.self::MIN_PASSWORD_LENGTH.' حرفًا على الأقل.',
+            ]);
+        }
     }
 
     private function assertManager(?User $actor): void

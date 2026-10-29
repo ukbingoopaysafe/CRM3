@@ -30,6 +30,9 @@ final class CustomersTable
         $self = new self;
 
         return $table
+            // The aftercare action asks every row whether its record already
+            // exists, so the answer is loaded once for the page, not per row.
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with('aftercare'))
             ->columns([
                 TextColumn::make('name')
                     ->label('الاسم')
@@ -114,7 +117,7 @@ final class CustomersTable
                     ->requiresConfirmation()
                     ->modalHeading('بدء سجل ما بعد الصفقة')
                     ->modalDescription('سجل واحد لكل عميل داخل القسم، ويُسند إليك. يبدأ فقط بعد صفقة ناجحة للعميل.')
-                    ->visible(fn (Customer $record): bool => ! $record->aftercare()->exists()
+                    ->visible(fn (Customer $record): bool => $record->aftercare === null
                         && ($self->actor()?->can('startAftercare', $record) ?? false))
                     ->action(function (Customer $record) use ($self): void {
                         $self->run(
