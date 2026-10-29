@@ -29,13 +29,13 @@ third-party build output and their minified bodies trip every pattern.
 | Dimension | Rule | Checked by | Runs at |
 |-----------|------|-----------|---------|
 | Formatting | Zero style errors (257 files today) | `vendor/bin/pint --test` | every edit |
-| Tests | Zero failures, 169 tests or more | `php artisan test` | task end |
+| Tests | Zero failures, 170 tests or more | `php artisan test` | task end |
 | Queries per list page | At most 25, and the same count at 12 rows as at 60 rows | `php artisan test --filter=QueryBudgetTest` | task end |
 | Built CSS | At most 790000 bytes total | `php tools/asset-budget.php` | task end |
 | Built JS | At most 62000 bytes total | `php tools/asset-budget.php` | task end |
 | Dependency advisories (PHP) | No high or critical, at most 0 | `composer audit --no-dev` | CI, task end |
 | Dependency advisories (JS) | No high or critical, at most 0 | `npm audit --audit-level=high` | CI, task end |
-| Secrets in staged files | At most 0 findings, values redacted | `gitleaks git --staged --redact --no-banner` | every edit |
+| Secrets in the working tree | At most 0 findings, values redacted | `gitleaks dir --config .gitleaks.toml --redact --no-banner --verbose .` | every edit |
 | Secrets in history | At most 0 findings, values redacted | `gitleaks git --redact --no-banner` | ship |
 | Floor | At most 0 violations | `node tools/floor-guard.mjs` | every edit |
 
@@ -47,6 +47,11 @@ The CSS ceiling was 660000 until Filament 5.11, which ships a heavier bundle:
 that measurement plus headroom, taken once, with the reason recorded here. Any
 further growth is a finding, not a number to move.
 
+The secrets scan reads the working tree rather than the index. A staged-only
+scan reports `scanned ~0 bytes` on a normal edit, so it would look green while
+proving nothing; the working-tree scan covers uncommitted work and costs about
+2 s, because the allowlist keeps `vendor/` and `node_modules/` out of it.
+
 The secrets scan allowlists `tests/` on purpose. The fixtures there hold fixed
 placeholder passwords, and a real secret belongs in `.env`. A finding anywhere
 else is a defect, not a false positive.
@@ -56,7 +61,7 @@ else is a defect, not a false positive.
 | Metric | Today | Direction |
 |--------|-------|-----------|
 | Coverage of `app/` | not measured: no xdebug or pcov on this machine | add a driver, then set the number |
-| Slowest panel page (30 rows) | 21 queries on `/admin` | must not grow |
+| Slowest panel page (30 rows) | 155 ms on `/admin/rental/requests` | must not grow |
 | Accessibility findings | not measured: a check needs a logged-in browser session | measure before enforcing |
 
 ## Exceptions

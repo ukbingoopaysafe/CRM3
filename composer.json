@@ -38,7 +38,7 @@
         "check:fast": [
             "vendor/bin/pint --test",
             "node tools/floor-guard.mjs",
-            "gitleaks git --staged --redact --no-banner"
+            "gitleaks dir --config .gitleaks.toml --redact --no-banner --verbose ."
         ],
         "check:task": [
             "@check:fast",

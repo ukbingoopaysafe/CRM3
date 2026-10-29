@@ -8,8 +8,10 @@ declare(strict_types=1);
  *
  *   php tools/asset-budget.php
  */
+// Mirrors the numbers in CONSTRAINTS.md. The CSS ceiling moved once, when
+// Filament 5.11 shipped a heavier bundle; the file records why.
 const CEILINGS = [
-    'css' => 660_000,
+    'css' => 790_000,
     'js' => 62_000,
 ];
 
