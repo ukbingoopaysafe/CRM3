@@ -83,7 +83,7 @@ final class CustomersTable
                     }),
             ])
             ->recordActions([
-                EditAction::make()->label('تعديل'),
+                EditAction::make()->iconButton()->label('تعديل')->tooltip('تعديل'),
 
                 Action::make('archive')
                     ->label('أرشفة')
@@ -126,7 +126,8 @@ final class CustomersTable
             ->defaultSort('created_at', 'desc')
             ->striped()
             ->emptyStateHeading('لا توجد سجلات عملاء بعد')
-            ->emptyStateDescription('أنشئ أول سجل عميل في هذا القسم لتبدأ متابعة الطلبات.');
+            ->emptyStateDescription('أنشئ أول سجل عميل في هذا القسم لتبدأ متابعة الطلبات.')
+            ->emptyStateIcon('heroicon-o-users');
     }
 
     private function canArchive(Customer $record): bool

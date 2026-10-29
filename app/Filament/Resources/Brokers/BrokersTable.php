@@ -60,7 +60,7 @@ final class BrokersTable
                     ->sortable(),
             ])
             ->recordActions([
-                EditAction::make()->label('تعديل'),
+                EditAction::make()->iconButton()->label('تعديل')->tooltip('تعديل'),
 
                 Action::make('delete')
                     ->label('حذف نهائي')
@@ -85,7 +85,8 @@ final class BrokersTable
             ->defaultSort('name')
             ->striped()
             ->emptyStateHeading('لا يوجد وسطاء في هذا القسم')
-            ->emptyStateDescription('أضف أول وسيط لتبدأ ربط الطلبات به.');
+            ->emptyStateDescription('أضف أول وسيط لتبدأ ربط الطلبات به.')
+            ->emptyStateIcon('heroicon-o-identification');
     }
 
     private function canDelete(Broker $record): bool

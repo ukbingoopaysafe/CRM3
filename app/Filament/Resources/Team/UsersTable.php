@@ -106,7 +106,9 @@ final class UsersTable
             ])
             ->recordActions([
                 EditAction::make()
+                    ->iconButton()
                     ->label('تعديل')
+                    ->tooltip('تعديل')
                     ->visible(fn (User $record): bool => auth()->user()?->can('update', $record) ?? false),
 
                 Action::make('disable_mfa')
@@ -149,7 +151,8 @@ final class UsersTable
             ->defaultSort('name')
             ->striped()
             ->emptyStateHeading('لا يوجد أعضاء بعد')
-            ->emptyStateDescription('أنشئ حساب مدير شركة أو موظف ليبدأ العمل.');
+            ->emptyStateDescription('أنشئ حساب مدير شركة أو موظف ليبدأ العمل.')
+            ->emptyStateIcon('heroicon-o-shield-check');
     }
 
     private function run(\Closure $callback): void

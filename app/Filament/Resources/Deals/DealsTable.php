@@ -73,11 +73,12 @@ final class DealsTable
                     ->options(Currency::options()),
             ])
             ->recordActions([
-                ViewAction::make()->label('عرض'),
+                ViewAction::make()->iconButton()->label('عرض')->tooltip('عرض'),
             ])
             ->defaultSort('deal_date', 'desc')
             ->striped()
             ->emptyStateHeading('لا توجد صفقات بعد')
-            ->emptyStateDescription('تُسجل الصفقة من طلب مغلق نتيجته ناجحة.');
+            ->emptyStateDescription('تُسجل الصفقة من طلب مغلق نتيجته ناجحة.')
+            ->emptyStateIcon('heroicon-o-banknotes');
     }
 }

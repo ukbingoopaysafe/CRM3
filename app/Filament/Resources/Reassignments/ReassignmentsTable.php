@@ -84,6 +84,7 @@ final class ReassignmentsTable
             ->defaultSort('id', 'desc')
             ->striped()
             ->emptyStateHeading('لا توجد طلبات إعادة تعيين')
-            ->emptyStateDescription('تُقدم الطلبات من صفحة الطلب أو مباشرة من المدير.');
+            ->emptyStateDescription('تُقدم الطلبات من صفحة الطلب أو مباشرة من المدير.')
+            ->emptyStateIcon('heroicon-o-arrow-path');
     }
 }

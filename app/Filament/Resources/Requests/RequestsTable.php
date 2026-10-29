@@ -134,8 +134,8 @@ final class RequestsTable
                     }),
             ])
             ->recordActions([
-                ViewAction::make()->label('عرض'),
-                EditAction::make()->label('تعديل'),
+                ViewAction::make()->iconButton()->label('عرض')->tooltip('عرض'),
+                EditAction::make()->iconButton()->label('تعديل')->tooltip('تعديل'),
                 $self->dealAction(),
                 // The remaining moves are rare enough to live behind one menu,
                 // so the row stays readable with ten possible actions.
@@ -151,6 +151,7 @@ final class RequestsTable
             ->defaultSort('id', 'desc')
             ->striped()
             ->emptyStateHeading('لا توجد طلبات بعد')
-            ->emptyStateDescription('استقبل أول طلب في هذا القسم ليظهر هنا.');
+            ->emptyStateDescription('استقبل أول طلب في هذا القسم ليظهر هنا.')
+            ->emptyStateIcon('heroicon-o-document-text');
     }
 }

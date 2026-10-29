@@ -74,11 +74,12 @@ final class AftercaresTable
                     ->preload(),
             ])
             ->recordActions([
-                ViewAction::make()->label('عرض'),
+                ViewAction::make()->iconButton()->label('عرض')->tooltip('عرض'),
             ])
             ->defaultSort('next_follow_up_at')
             ->striped()
             ->emptyStateHeading('لا توجد سجلات ما بعد الصفقة')
-            ->emptyStateDescription('يبدأ السجل مع أول صفقة ناجحة لعميل معروف، أو عند بدء العلاقة من سجل العميل.');
+            ->emptyStateDescription('يبدأ السجل مع أول صفقة ناجحة لعميل معروف، أو عند بدء العلاقة من سجل العميل.')
+            ->emptyStateIcon('heroicon-o-calendar-days');
     }
 }

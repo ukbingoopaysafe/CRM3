@@ -100,6 +100,9 @@
     --cb-muted: #6b7280;
     --cb-line: #e5e7eb;
     --cb-line-strong: #d1d5db;
+    /* The one hairline that has to read on white without turning into ink:
+       dashed orbits, empty-state marks, decorative outlines. */
+    --cb-line-teal: #c9dde1;
 
     /* Status */
     --cb-success: #15803d;
@@ -133,6 +136,27 @@
 
 html {
     -webkit-text-size-adjust: 100%;
+
+    /* The parts no design system usually reaches: the scrollbar is inherited
+       by every scroll container, so this one rule themes the whole panel. */
+    scrollbar-width: thin;
+    scrollbar-color: var(--cb-line-strong) transparent;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--cb-line-strong);
+    background-clip: content-box;
+    border: 3px solid transparent;
+    border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #9aa5ad;
 }
 
 body,
@@ -166,6 +190,19 @@ body,
     color: var(--cb-teal-950);
 }
 
+::placeholder {
+    /* Lighter grays fall under 4.5:1 on white, so the placeholder keeps the
+       muted ink instead of the usual near-invisible tone. */
+    color: var(--cb-muted);
+    opacity: 1;
+}
+
+input,
+textarea,
+select {
+    caret-color: var(--cb-teal-600);
+}
+
 :focus-visible {
     outline: 2px solid var(--cb-teal-600);
     outline-offset: 2px;
@@ -191,15 +228,6 @@ body,
     font-weight: 600;
     line-height: 1.3;
     color: var(--cb-ink);
-}
-
-.cb-eyebrow {
-    font-family: var(--cible-font-latin);
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--cb-muted);
 }
 
 /* ---------------------------------------------------------------- topbar */
@@ -338,8 +366,7 @@ body,
 
 .fi-section,
 .fi-ta-ctn,
-.fi-wi-stats-overview-stat,
-.cb-card {
+.fi-wi-stats-overview-stat {
     border-radius: var(--radius-card);
     border: 1px solid var(--cb-line);
     background-color: var(--cb-surface);
@@ -572,13 +599,24 @@ body,
     padding-block: var(--cb-space-5);
 }
 
-.fi-ta-empty-state-icon-ctn {
+.fi-ta-empty-state-icon-bg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 4.5rem;
     height: 4.5rem;
     border-radius: 999px;
     background: radial-gradient(120% 120% at 30% 20%, var(--cb-teal-50), #ffffff 70%);
     box-shadow: inset 0 0 0 1px var(--cb-teal-100), 0 8px 20px rgba(15, 76, 92, 0.08);
     color: var(--cb-teal-600);
+    /* The same dashed orbit as the dashboard's empty mark, at disc scale. */
+    outline: 1px dashed var(--cb-line-teal);
+    outline-offset: 0.5rem;
+}
+
+.fi-ta-empty-state-icon-bg svg {
+    width: 1.75rem;
+    height: 1.75rem;
 }
 
 .fi-ta-empty-state-heading {
@@ -718,9 +756,10 @@ body,
     color: #ffffff;
 }
 
-.cb-hero-eyebrow {
-    font-size: 0.8125rem;
-    color: rgba(248, 250, 252, 0.72);
+.cb-hero-date::before {
+    content: '·';
+    margin-inline-end: 0.375rem;
+    color: rgba(248, 250, 252, 0.4);
 }
 
 .cb-hero-greeting {
@@ -1141,11 +1180,52 @@ a.cb-stat:hover {
     white-space: nowrap;
 }
 
-.cb-quiet {
+/* Empty surfaces: one mark, shared by the dashboard panels and the tables. */
+.cb-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
     padding: var(--cb-space-4) var(--cb-space-3);
     text-align: center;
-    color: var(--cb-muted);
+}
+
+.cb-empty-art {
+    width: 5rem;
+    height: 5rem;
+    margin-bottom: var(--cb-space-1);
+}
+
+.cb-empty-title {
+    margin: 0;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--cb-ink);
+}
+
+.cb-empty-body {
+    margin: 0;
+    max-width: 34ch;
     font-size: 0.875rem;
+    line-height: 1.6;
+    color: var(--cb-muted);
+}
+
+.cb-empty-action {
+    margin-top: var(--cb-space-1);
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--cb-teal-800);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-decoration-color: var(--cb-teal-100);
+    text-underline-offset: 0.3em;
+    transition: color var(--cb-ease), text-decoration-color var(--cb-ease);
+}
+
+.cb-empty-action:hover {
+    color: var(--cb-teal-950);
+    text-decoration-color: var(--cb-gold);
 }
 
 /* --------------------------------------------------------------- motion */

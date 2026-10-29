@@ -7,12 +7,12 @@
                 <span class="cb-avatar" aria-hidden="true">{{ $hero['initials'] ?? '' }}</span>
 
                 <div>
-                    <span class="cb-hero-eyebrow">{{ $hero['date'] ?? '' }}</span>
-
                     <h1 class="cb-hero-greeting" id="cb-greeting">
                         {{ now()->hour < 12 ? 'صباح الخير' : 'مساء الخير' }}، {{ $hero['name'] ?? '' }}
                     </h1>
 
+                    {{-- The date sits with the role and the departments, not above
+                         the name: a label stacked over a heading is noise. --}}
                     <div class="cb-hero-meta">
                         <span class="cb-hero-badge">
                             <x-filament::icon icon="heroicon-m-shield-check" class="h-3.5 w-3.5" />
@@ -22,6 +22,8 @@
                         @if (filled($hero['departments'] ?? null))
                             <span>{{ $hero['departments'] }}</span>
                         @endif
+
+                        <span class="cb-hero-date">{{ $hero['date'] ?? '' }}</span>
                     </div>
                 </div>
             </div>
@@ -68,63 +70,39 @@
                 </header>
 
                 <div class="cb-stats">
-                    <div class="cb-stat cb-stat--success">
-                        <div class="cb-stat-top">
-                            <span class="cb-stat-icon">
-                                <x-filament::icon icon="heroicon-o-clipboard-document-list" />
-                            </span>
+                    {{-- The chip is one text run on purpose: splitting the sign
+                         from the number lets RTL reorder it to "6+". --}}
+                    <x-cible.stat
+                        label="طلبات نشطة"
+                        :value="$board['metrics']['active']"
+                        icon="heroicon-o-clipboard-document-list"
+                        accent="success"
+                        :chip="'+' . $board['new_this_week'] . ' هذا الأسبوع'"
+                    />
 
-                            {{-- One text run: splitting the number into its own
-                                 element lets RTL reorder the sign to "6+". --}}
-                            <span class="cb-stat-chip">
-                                +{{ $board['new_this_week'] }} هذا الأسبوع
-                            </span>
-                        </div>
+                    <x-cible.stat
+                        label="متابعات متأخرة"
+                        :value="$board['metrics']['overdue']"
+                        icon="heroicon-o-exclamation-triangle"
+                        :accent="$board['metrics']['overdue'] > 0 ? 'danger' : null"
+                        :chip="$board['metrics']['overdue'] > 0 ? 'تحتاج تدخّل' : 'لا متأخرات'"
+                    />
 
-                        <span class="cb-stat-value cb-num">{{ $board['metrics']['active'] }}</span>
-                        <p class="cb-stat-label">طلبات نشطة</p>
-                    </div>
+                    <x-cible.stat
+                        label="متابعات اليوم"
+                        :value="$board['metrics']['due_today']"
+                        icon="heroicon-o-clock"
+                        accent="warning"
+                        chip="حتى نهاية اليوم"
+                    />
 
-                    <div @class(['cb-stat', 'cb-stat--danger' => $board['metrics']['overdue'] > 0])>
-                        <div class="cb-stat-top">
-                            <span class="cb-stat-icon">
-                                <x-filament::icon icon="heroicon-o-exclamation-triangle" />
-                            </span>
-
-                            <span class="cb-stat-chip">
-                                {{ $board['metrics']['overdue'] > 0 ? 'تحتاج تدخّل' : 'لا متأخرات' }}
-                            </span>
-                        </div>
-
-                        <span class="cb-stat-value cb-num">{{ $board['metrics']['overdue'] }}</span>
-                        <p class="cb-stat-label">متابعات متأخرة</p>
-                    </div>
-
-                    <div class="cb-stat cb-stat--warning">
-                        <div class="cb-stat-top">
-                            <span class="cb-stat-icon">
-                                <x-filament::icon icon="heroicon-o-clock" />
-                            </span>
-
-                            <span class="cb-stat-chip">حتى نهاية اليوم</span>
-                        </div>
-
-                        <span class="cb-stat-value cb-num">{{ $board['metrics']['due_today'] }}</span>
-                        <p class="cb-stat-label">متابعات اليوم</p>
-                    </div>
-
-                    <div class="cb-stat cb-stat--info">
-                        <div class="cb-stat-top">
-                            <span class="cb-stat-icon">
-                                <x-filament::icon icon="heroicon-o-user" />
-                            </span>
-
-                            <span class="cb-stat-chip">وسيط فقط</span>
-                        </div>
-
-                        <span class="cb-stat-value cb-num">{{ $board['metrics']['without_customer'] }}</span>
-                        <p class="cb-stat-label">بلا عميل معروف</p>
-                    </div>
+                    <x-cible.stat
+                        label="بلا عميل معروف"
+                        :value="$board['metrics']['without_customer']"
+                        icon="heroicon-o-user"
+                        accent="info"
+                        chip="وسيط فقط"
+                    />
                 </div>
 
                 {{-- The counters that matter but do not deserve a card of their own. --}}
@@ -159,7 +137,10 @@
                         </div>
 
                         @if ($board['overdue'] === [])
-                            <p class="cb-quiet">لا توجد متابعة متأخرة في {{ $board['label'] }}. كل الملفات في موعدها.</p>
+                            <x-cible.empty
+                                title="لا متابعات متأخرة"
+                                :body="'كل ملفات ' . $board['label'] . ' في موعدها.'"
+                            />
                         @else
                             <ul class="cb-list">
                                 @foreach ($board['overdue'] as $row)
@@ -191,10 +172,12 @@
                         </div>
 
                         @if ($board['latest'] === [])
-                            <div class="cb-quiet">
-                                <p>لم يُسجَّل أي طلب في {{ $board['label'] }} بعد.</p>
-                                <a class="cb-link" href="{{ $board['urls']['new_request'] }}">ابدأ بأول طلب</a>
-                            </div>
+                            <x-cible.empty
+                                title="لم يُسجَّل أي طلب بعد"
+                                :body="'أول طلب في ' . $board['label'] . ' يبدأ من هنا.'"
+                                action="ابدأ بأول طلب"
+                                :href="$board['urls']['new_request']"
+                            />
                         @else
                             <ul class="cb-list">
                                 @foreach ($board['latest'] as $row)
