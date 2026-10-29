@@ -154,7 +154,7 @@
                                             </span>
 
                                             <span class="cb-list-trail">
-                                                <span class="cb-late">{{ $row['late_days'] }} يوم</span>
+                                                <span class="cb-late">{{ $row['late'] }}</span>
                                                 <x-filament::icon icon="heroicon-m-chevron-left" class="h-4 w-4" />
                                             </span>
                                         </a>

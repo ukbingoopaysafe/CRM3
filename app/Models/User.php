@@ -10,20 +10,18 @@ use Filament\Auth\MultiFactor\App\Concerns\InteractsWithAppAuthenticationRecover
 use Filament\Auth\MultiFactor\App\Contracts\HasAppAuthentication;
 use Filament\Auth\MultiFactor\App\Contracts\HasAppAuthenticationRecovery;
 use Filament\Models\Contracts\FilamentUser;
-use Filament\Models\Contracts\HasAvatar;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\Storage;
 
 /**
  * Internal staff account. A company manager always covers both departments;
  * an employee only sees the departments assigned to them (D-034, D-063).
  */
-class User extends Authenticatable implements FilamentUser, HasAppAuthentication, HasAppAuthenticationRecovery, HasAvatar
+class User extends Authenticatable implements FilamentUser, HasAppAuthentication, HasAppAuthenticationRecovery
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, InteractsWithAppAuthentication, InteractsWithAppAuthenticationRecovery, Notifiable;
@@ -35,7 +33,6 @@ class User extends Authenticatable implements FilamentUser, HasAppAuthentication
         'role',
         'job_title',
         'phone',
-        'avatar_path',
         'is_active',
         'last_login_at',
     ];
@@ -138,13 +135,6 @@ class User extends Authenticatable implements FilamentUser, HasAppAuthentication
                 ->orWhereHas('memberships', fn (Builder $memberships) => $memberships
                     ->where('department', $department->value));
         });
-    }
-
-    public function getFilamentAvatarUrl(): ?string
-    {
-        return $this->avatar_path
-            ? Storage::disk('public')->url($this->avatar_path)
-            : null;
     }
 
     public function canAccessPanel(Panel $panel): bool

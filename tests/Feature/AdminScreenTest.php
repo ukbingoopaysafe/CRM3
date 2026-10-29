@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Services\CustomerService;
 use App\Services\SummaryMetrics;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Livewire\Livewire;
 use Tests\Concerns\CreatesDomainData;
 use Tests\TestCase;
@@ -152,6 +153,33 @@ class AdminScreenTest extends TestCase
         $this->actingAs($employee)->get('/admin')
             ->assertOk()
             ->assertDontSee('دليل المناطق');
+    }
+
+    public function test_an_overdue_follow_up_is_reported_in_the_unit_a_person_reads(): void
+    {
+        Carbon::setTestNow(Carbon::parse('2026-10-28 10:00'));
+
+        $hoursLate = $this->makeRequest(Department::Rental, [
+            'next_follow_up_at' => Carbon::parse('2026-10-28 07:00'),
+        ]);
+
+        $this->makeRequest(Department::Rental, [
+            'next_follow_up_at' => Carbon::parse('2026-10-25 09:00'),
+        ]);
+
+        $this->actingAs($hoursLate->owner)
+            ->get('/admin')
+            ->assertOk()
+            ->assertSee('3 ساعات')
+            ->assertSee('3 أيام');
+    }
+
+    public function test_the_panel_counts_days_in_the_company_time_zone(): void
+    {
+        // "Today" and "overdue" are decided by now(), so a UTC clock put the
+        // day boundary at 02:00 for the Cairo team (D-084).
+        $this->assertSame('Africa/Cairo', config('app.timezone'));
+        $this->assertSame('Africa/Cairo', now()->getTimezone()->getName());
     }
 
     public function test_inactive_user_cannot_open_admin_screens(): void

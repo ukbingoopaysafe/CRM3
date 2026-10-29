@@ -124,7 +124,7 @@ class Dashboard extends BaseDashboard
             ->map(fn ($request): array => [
                 'title' => $request->contactName() ?: 'طلب #'.$request->getKey(),
                 'stage' => $request->stage->labelFor($department),
-                'late_days' => max(1, (int) now()->startOfDay()->diffInDays($request->next_follow_up_at->startOfDay(), true)),
+                'late' => $this->lateLabel($request->next_follow_up_at),
                 'url' => $resource::getUrl('view', ['record' => $request]),
             ])
             ->all();
@@ -149,6 +149,33 @@ class Dashboard extends BaseDashboard
                 'url' => $resource::getUrl('view', ['record' => $request]),
             ])
             ->all();
+    }
+
+    /**
+     * How late a follow-up is, in the unit a person says out loud: hours for
+     * something that slipped today, days after that.
+     */
+    private function lateLabel(\DateTimeInterface $due): string
+    {
+        $hours = max(1, (int) ceil((now()->getTimestamp() - $due->getTimestamp()) / 3600));
+
+        if ($hours < 24) {
+            return match (true) {
+                $hours === 1 => 'ساعة',
+                $hours === 2 => 'ساعتان',
+                $hours <= 10 => $hours.' ساعات',
+                default => $hours.' ساعة',
+            };
+        }
+
+        $days = intdiv($hours, 24);
+
+        return match (true) {
+            $days === 1 => 'يوم',
+            $days === 2 => 'يومان',
+            $days <= 10 => $days.' أيام',
+            default => $days.' يومًا',
+        };
     }
 
     private function initials(string $name): string

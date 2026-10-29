@@ -250,21 +250,11 @@ class RequestService
         });
     }
 
-    public function setFollowUp(Request $request, CarbonInterface $at, User $actor): Request
-    {
-        $request->forceFill(['next_follow_up_at' => $at])->save();
-
-        $this->audit->record('updated', $request, $request::department(), [
-            'next_follow_up_at' => $at->toIso8601String(),
-        ], actor: $actor);
-
-        return $request;
-    }
-
     /**
      * Closing never creates a deal (D-047); a losing close requires the
      * employee's free-text reason (D-050). The reason text stays on the
-     * request and is not copied into the audit payload (D-061).
+     * request and is not copied into the audit payload (D-061). The follow-up
+     * date is cleared: a closed request has nothing left to chase.
      */
     public function close(
         Request $request,
@@ -305,6 +295,7 @@ class RequestService
                 'outcome_notes' => $notes,
                 'closed_at' => now(),
                 'paused_at' => null,
+                'next_follow_up_at' => null,
             ])->save();
 
             $request->stageHistories()->create([

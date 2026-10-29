@@ -80,6 +80,10 @@ trait HasExcelActions
                     $this->reportDomainError($exception);
 
                     return null;
+                } finally {
+                    // The sheet carries customer names and phones; it is read
+                    // once and then removed, whatever the outcome (D-084).
+                    Storage::disk('local')->delete($file);
                 }
 
                 $notification = Notification::make()

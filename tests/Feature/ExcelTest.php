@@ -188,7 +188,32 @@ class ExcelTest extends TestCase
 
         $this->assertSame(1, Customer::query()->count());
 
-        File::delete(storage_path('app/private/'.$relative));
+        // The uploaded sheet is personal data and is removed after the read.
+        $this->assertFileDoesNotExist(storage_path('app/private/'.$relative));
+    }
+
+    public function test_a_file_over_the_row_limit_writes_nothing_and_is_refused(): void
+    {
+        $employee = $this->employee(Department::Rental);
+
+        $rows = [];
+
+        for ($i = 0; $i <= CustomerImportService::MAX_ROWS; $i++) {
+            $rows[] = ['عميل '.$i, '+2010'.str_pad((string) $i, 8, '0', STR_PAD_LEFT), 'EG', 'مصر'];
+        }
+
+        $path = $this->workbook($rows);
+
+        try {
+            app(CustomerImportService::class)->import(Department::Rental, $path, $employee);
+            $this->fail('A file over the row limit must be refused.');
+        } catch (ValidationException $exception) {
+            $this->assertArrayHasKey('file', $exception->errors());
+        }
+
+        $this->assertSame(0, Customer::query()->count());
+
+        File::delete($path);
     }
 
     /**

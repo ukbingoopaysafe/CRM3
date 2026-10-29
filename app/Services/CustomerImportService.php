@@ -45,11 +45,53 @@ class CustomerImportService
 
         $model = $this->customers->modelFor($department);
 
+        // Read the whole sheet before writing anything: a file over the limit
+        // must be refused with nothing saved, not half-imported (D-084).
+        [$total, $rows] = $this->read($path);
+
+        if ($total > self::MAX_ROWS) {
+            throw ValidationException::withMessages([
+                'file' => 'الملف يتجاوز الحد الأقصى '.self::MAX_ROWS.' صفًا. قسّمه ثم استورده.',
+            ]);
+        }
+
         $created = 0;
-        $total = 0;
         $failures = [];
-        $reader = new Reader;
+
+        foreach ($rows as $cells) {
+            $reason = $this->createRow($model, $cells['cells'], $actor);
+
+            if ($reason === null) {
+                $created++;
+
+                continue;
+            }
+
+            $failures[] = ['row' => $cells['row'], 'reason' => $reason];
+        }
+
+        return new ImportSummary(
+            created: $created,
+            total: $total,
+            failures: $failures,
+            reportPath: $failures === [] ? null : $this->writeReport($failures),
+        );
+    }
+
+    /**
+     * Reads the first sheet once and returns the row count with the rows that
+     * carry a name or a phone, keeping the file row number for the report.
+     *
+     * @return array{0: int, 1: array<int, array{row: int, cells: array<int, string>}>}
+     *
+     * @throws ValidationException
+     */
+    private function read(string $path): array
+    {
+        $total = 0;
+        $rows = [];
         $rowNumber = 0;
+        $reader = new Reader;
 
         try {
             $reader->open($path);
@@ -67,28 +109,13 @@ class CustomerImportService
                     }
 
                     $total++;
-
-                    if ($total > self::MAX_ROWS) {
-                        throw ValidationException::withMessages([
-                            'file' => 'الملف يتجاوز الحد الأقصى '.self::MAX_ROWS.' صفًا.',
-                        ]);
-                    }
-
                     $cells = array_pad(array_map([$this, 'text'], $row->toArray()), count(self::COLUMNS), '');
 
                     if ($cells[0] === '' && $cells[1] === '') {
                         continue;
                     }
 
-                    $reason = $this->createRow($model, $cells, $actor);
-
-                    if ($reason === null) {
-                        $created++;
-
-                        continue;
-                    }
-
-                    $failures[] = ['row' => $rowNumber, 'reason' => $reason];
+                    $rows[] = ['row' => $rowNumber, 'cells' => $cells];
                 }
 
                 // Only the first sheet is imported; the template has one.
@@ -98,12 +125,7 @@ class CustomerImportService
             $reader->close();
         }
 
-        return new ImportSummary(
-            created: $created,
-            total: $total,
-            failures: $failures,
-            reportPath: $failures === [] ? null : $this->writeReport($failures),
-        );
+        return [$total, $rows];
     }
 
     /**

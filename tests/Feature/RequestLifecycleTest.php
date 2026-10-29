@@ -108,6 +108,8 @@ class RequestLifecycleTest extends TestCase
         $this->assertSame(Outcome::Successful, $request->outcome);
         $this->assertFalse($request->hasDeal());
         $this->assertNull($request->outcome_reason_text);
+        // Nothing left to chase, so the follow-up date goes with the close.
+        $this->assertNull($request->next_follow_up_at);
     }
 
     public function test_unsuccessful_close_stores_the_reason_text(): void
